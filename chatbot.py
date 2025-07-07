@@ -136,7 +136,7 @@ def match_custom_response(message):
     return None
 
 # === Streamlit Chat UI ===
-st.title("💬 Inxits Mutual Fund Assistant")
+st.title("💬 Inxits Virtual Assistant")
 
 if not st.session_state.chat_history:
     onboarding = (
