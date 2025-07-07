@@ -9,16 +9,16 @@ from datetime import datetime
 from sqlalchemy import create_engine, text
 
 # === Gemini API Config ===
-genai.configure(api_key="AIzaSyD8lVp9I566j6M6UpnlP4LuL79M_zk3hkU")
+genai.configure(api_key=st.secrets['GEMINI_API_KEY'])
 model = genai.GenerativeModel("gemini-2.5-flash")
 chat = model.start_chat(history=[])
 
 # === SQL Server Connection using SQLAlchemy + pyodbc ===
-server_name = '54.145.168.143'
-port = '1433'
-user_name = 'inxits_nav_user'
-database_name = 'inxits_Nav'
-password = 'InxitsSch01105'
+server_name = st.secrets['SERVER_NAME']
+port = st.secrets['PORT']
+user_name = st.secrets['UID']
+database_name = st.secrets['DATABASE']
+password = st.secrets['PWD']
 driver = 'ODBC Driver 17 for SQL Server'  # Make sure this driver is installed
 
 driver_encoded = driver.replace(" ", "+")
