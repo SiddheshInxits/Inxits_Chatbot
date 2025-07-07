@@ -14,8 +14,17 @@ model = genai.GenerativeModel("gemini-2.5-flash")
 chat = model.start_chat(history=[])
 
 # === SQL Server DB Config ===
+server_name = '54.145.168.143,1433'
+user_name = 'inxits_nav_user'
+database_name = 'inxits_Nav'
+password = 'InxitsSch01105'
+
 conn = pyodbc.connect(
-    'DRIVER={SQL Server};SERVER=54.145.168.143,1433;DATABASE=inxits_Nav;UID=inxits_nav_user;PWD=InxitsSch01105'
+    f'DRIVER={{SQL Server}};'
+    f'SERVER={server_name};'
+    f'DATABASE={database_name};'
+    f'UID={user_name};'
+    f'PWD={password}'
 )
 cursor = conn.cursor()
 
