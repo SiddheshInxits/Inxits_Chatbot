@@ -50,7 +50,7 @@ def extract_text_from_pdf_file(file_path):
         st.warning(f"⚠️ PDF load failed. Using fallback. Error: {e}")
         return "Inxits.com helps users make better mutual fund decisions with comparison, filtering, and overlap analysis tools."
 
-website_context = extract_text_from_pdf_file("C:\\Users\\Admin\\inxits_brochure.pdf")
+website_context = extract_text_from_pdf_file("inxits_brochure.pdf")
 
 # === System Prompt ===
 system_intro = (
