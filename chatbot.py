@@ -58,9 +58,13 @@ system_intro = (
     "You are a helpful, friendly, and concise mutual fund assistant chatbot for Inxits.com.\n"
     "Your job is to help Indian retail investors understand and use Inxits — a commission-free, DIY platform for mutual fund analysis.\n"
     "Inxits provides tools like return comparison, fund screening, and portfolio overlap detection to help users invest smarter.\n\n"
-    f"📄 Brochure Context:\n{website_context}\n\n"
-    "📌 If user asks general questions like 'What is Inxits?', give a short answer.\n"
-    "📌 If user asks for detail — e.g., 'Explain Inxits in detail' — use the context above.\n"
+    "🧠 Tone: Clear, jargon-free, informative. Avoid promotional or vague statements. Focus on features, tools, and user value.\n\n"
+    f"📄 Below is the latest official website/brochure context for Inxits:\n{website_context}\n\n"
+    "📌 When a user asks general questions like 'What is Inxits?', give a concise summary in 200 to 300 words.\n"
+    # "📌 When a user asks general questions like 'What is Inxits?', give a concise summary.\n"
+    # "📌 When a user asks for more detail — e.g., 'Tell me more about Inxits', 'Explain Inxits in detail' — then pull content from the website context above and summarize it clearly in 200–300 words.\n"
+    "📌 You may also refer to specific tools, examples, or use cases described in the context.\n\n"
+    "If the user asks about something else (like returns, overlap, SIPs), respond appropriately using relevant parts of the context and tools offered by Inxits.\n"
 )
 chat.send_message(system_intro)
 
@@ -92,23 +96,40 @@ def choose_variant(key, variants, url):
 
 def get_tool_response(message):
     msg = message.lower()
-    if any(kw in msg for kw in ["compare", "return", "performance", "sharpe"]):
+    if any(kw in msg for kw in ["compare", "return", "performance", "sharpe", "volatility"]):
         return choose_variant("compare", [
-            "🧮 Compare up to 5 mutual funds:\n- ✅ Returns\n- ⚖️ Sharpe\n- 🔄 Rolling returns",
-            "🧮 Compare mutual funds by:\n- 📈 Returns\n- 📉 Volatility\n- 🆚 Benchmark"
-        ], "https://portal.inxits.com/ReturnComparison/")
-    elif any(kw in msg for kw in ["explore", "filter"]):
+            """🧮 Looking to understand fund performance?
+    Our **Return Comparison Tool** lets you analyze up to **5 mutual funds** side-by-side:\n
+    - ✅ Returns (1Y, 3Y, 5Y)
+    - ⚖️ Sharpe & Sortino ratios
+    - 🔄 Rolling & benchmark returns""",
+            """🧮 Curious about returns or risk?
+    Use our tool to compare mutual funds on:\n
+    - 📈 Historical returns
+    - 📉 Volatility
+    - 🆚 Fund vs Benchmark"""
+    ], "https://portal.inxits.com/ReturnComparison/")
+
+    elif any(kw in msg for kw in ["explore", "filter", "rank"]):
         return choose_variant("explore", [
-            "🔍 Explore top funds by category, rating, AMC, etc.",
-            "🔍 Filter by return, risk, and fund house to find best funds."
+            """🔍 Use the **Explore Tool** to:
+- 🧠 Filter by category, rating, AMC, or return
+- 📊 Discover best funds for your risk type""",
+            """🔍 Want top-rated funds?
+Use Explore Tool to filter by type, rating, risk, or returns across timeframes."""
         ], "https://portal.inxits.com/Explore/")
-    elif "overlap" in msg:
+    elif any(kw in msg for kw in ["overlap", "diversify"]):
         return choose_variant("overlap", [
-            "📊 Use the Portfolio Overlap Tool to find duplicate holdings.",
-            "📊 Detect overlap across your funds to reduce risk."
+            """📊 **Portfolio Overlap Tool** helps:
+- 🔄 Detect common holdings across funds
+- 🧱 Improve diversification and reduce duplication""",
+            """📊 Avoid redundant investments using Overlap Tool:
+- Spot holdings duplication across funds easily"""
         ], "https://portal.inxits.com/PortfolioOverlap/")
-    elif "home" in msg:
-        return "🌐 Visit [Inxits.com](https://inxits.com)"
+    elif any(kw in msg for kw in ["home", "homepage", "start"]):
+        return choose_variant("home", [
+            """🌐 Visit [Inxits.com](https://inxits.com) to explore all tools for fund comparison, screening, and overlap analysis."""
+        ], "https://inxits.com/")
     return ""
 
 GOAL_KEYWORDS = {
