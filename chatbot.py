@@ -19,14 +19,13 @@ port = st.secrets['PORT']
 user_name = st.secrets['UID']
 database_name = st.secrets['DATABASE']
 password = st.secrets['PWD']
-driver = 'ODBC Driver 17 for SQL Server'  # Make sure this driver is installed
+driver = 'ODBC Driver 17 for SQL Server'
 
 driver_encoded = driver.replace(" ", "+")
 conn_str = (
     f"mssql+pyodbc://{user_name}:{password}@{server_name},{port}/{database_name}"
     f"?driver={driver_encoded}"
 )
-
 engine = create_engine(conn_str)
 conn = engine.connect()
 
@@ -61,8 +60,6 @@ system_intro = (
     "🧠 Tone: Clear, jargon-free, informative. Avoid promotional or vague statements. Focus on features, tools, and user value.\n\n"
     f"📄 Below is the latest official website/brochure context for Inxits:\n{website_context}\n\n"
     "📌 When a user asks general questions like 'What is Inxits?', give a concise summary in 200 to 300 words.\n"
-    # "📌 When a user asks general questions like 'What is Inxits?', give a concise summary.\n"
-    # "📌 When a user asks for more detail — e.g., 'Tell me more about Inxits', 'Explain Inxits in detail' — then pull content from the website context above and summarize it clearly in 200–300 words.\n"
     "📌 You may also refer to specific tools, examples, or use cases described in the context.\n\n"
     "If the user asks about something else (like returns, overlap, SIPs), respond appropriately using relevant parts of the context and tools offered by Inxits.\n"
 )
@@ -99,16 +96,16 @@ def get_tool_response(message):
     if any(kw in msg for kw in ["compare", "return", "performance", "sharpe", "volatility"]):
         return choose_variant("compare", [
             """🧮 Looking to understand fund performance?
-    Our **Return Comparison Tool** lets you analyze up to **5 mutual funds** side-by-side:\n
-    - ✅ Returns (1Y, 3Y, 5Y)
-    - ⚖️ Sharpe & Sortino ratios
-    - 🔄 Rolling & benchmark returns""",
+Our **Return Comparison Tool** lets you analyze up to **5 mutual funds** side-by-side:\n
+- ✅ Returns (1Y, 3Y, 5Y)
+- ⚖️ Sharpe & Sortino ratios
+- 🔄 Rolling & benchmark returns""",
             """🧮 Curious about returns or risk?
-    Use our tool to compare mutual funds on:\n
-    - 📈 Historical returns
-    - 📉 Volatility
-    - 🆚 Fund vs Benchmark"""
-    ], "https://portal.inxits.com/ReturnComparison/")
+Use our tool to compare mutual funds on:\n
+- 📈 Historical returns
+- 📉 Volatility
+- 🆚 Fund vs Benchmark"""
+        ], "https://portal.inxits.com/ReturnComparison/")
 
     elif any(kw in msg for kw in ["explore", "filter", "rank"]):
         return choose_variant("explore", [
@@ -118,6 +115,7 @@ def get_tool_response(message):
             """🔍 Want top-rated funds?
 Use Explore Tool to filter by type, rating, risk, or returns across timeframes."""
         ], "https://portal.inxits.com/Explore/")
+
     elif any(kw in msg for kw in ["overlap", "diversify"]):
         return choose_variant("overlap", [
             """📊 **Portfolio Overlap Tool** helps:
@@ -126,6 +124,7 @@ Use Explore Tool to filter by type, rating, risk, or returns across timeframes."
             """📊 Avoid redundant investments using Overlap Tool:
 - Spot holdings duplication across funds easily"""
         ], "https://portal.inxits.com/PortfolioOverlap/")
+
     elif any(kw in msg for kw in ["home", "homepage", "start"]):
         return choose_variant("home", [
             """🌐 Visit [Inxits.com](https://inxits.com) to explore all tools for fund comparison, screening, and overlap analysis."""
@@ -188,27 +187,33 @@ if user_input:
     )
 
     if not reply:
-        if any(x in lower_input for x in ["tools", "features"]):
-            reply = (
-                "🧰 **Inxits Tools**\n\n"
-                "- 🧮 Return Comparison: Side-by-side fund analysis\n"
-                "- 🔍 Explore Tool: Filter by category, rating\n"
-                "- 📊 Overlap Tool: Find duplicate holdings"
-            )
-        elif lower_input in ["continue", "tell me more"]:
-            reply = "Let me know your specific query or try the Explore Tool!"
+        def is_mutual_fund_related(msg):
+            keywords = ["mutual fund", "mf", "sip", "etf", "nav", "investment", "returns", "fund", "amc"]
+            return any(kw in msg.lower() for kw in keywords)
+
+        def is_inxits_query(msg):
+            return any(word in msg.lower() for word in ["inxits", "tools", "explore", "compare", "overlap", "fund analysis"])
+
+        if is_inxits_query(user_input):
+            result = chat.send_message(f"{website_context}\nUser: {user_input}")
+            reply = result.text.strip()
+
+        elif is_mutual_fund_related(user_input):
+            prompt = f"""
+You are a helpful assistant for Indian mutual fund investors.
+Answer clearly without financial jargon or vague advice.
+Avoid suggesting to consult a financial advisor unless truly required.
+
+Question: {user_input}
+"""
+            result = model.generate_content(prompt)
+            reply = result.text.strip()
+
+            if any(phrase in reply.lower() for phrase in ["consult", "advisor", "not financial advice"]):
+                reply += "\n\n📞 For more help, contact **abcxyz**."
+
         else:
-            intent = detect_intent(user_input)
-            if intent == "GREETING":
-                reply = "👋 Hey! Ask me about fund tools, returns, or planning."
-            elif intent == "HELP_REQUEST":
-                reply = "💡 You can ask about tool usage, compare funds, or SIP planning."
-            elif not is_meaningful_input(user_input):
-                result = chat.send_message(f"Context: {website_context}\nUser: {user_input}")
-                reply = result.text.strip() or "🤔 Sorry, I didn’t get that. Can you rephrase?"
-            else:
-                result = chat.send_message(f"{website_context}\nUser: {user_input}")
-                reply = result.text.strip()
+            reply = "❌ I can only answer questions related to mutual funds or Inxits tools. Try asking about SIP, fund comparison, or Inxits features."
 
     st.chat_message("assistant").markdown(reply)
     st.session_state.chat_history.append({"role": "assistant", "content": reply})
