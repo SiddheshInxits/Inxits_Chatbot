@@ -34,10 +34,11 @@ conn = engine.connect()
 def log_to_db(role, message):
     timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     try:
-        conn.execute(
-            text("INSERT INTO chat_log (timestamp, role, message) VALUES (:ts, :role, :msg)"),
-            {"ts": timestamp, "role": role, "msg": message}
-        )
+        with engine.begin() as conn:
+            conn.execute(
+                text("INSERT INTO chat_log (timestamp, role, message) VALUES (:ts, :role, :msg)"),
+                {"ts": timestamp, "role": role, "msg": message}
+            )
     except Exception as e:
         st.warning(f"Logging failed: {e}")
 
