@@ -181,11 +181,26 @@ if user_input:
     log_to_db("User", user_input)
 
     lower_input = user_input.lower()
-    reply = (
-        match_custom_response(user_input)
-        or detect_goal(user_input)
-        or get_tool_response(user_input)
-    )
+    # reply = (
+    #     match_custom_response(user_input)
+    #     or detect_goal(user_input)
+    #     or get_tool_response(user_input)
+    # )
+    reply = None
+
+    # Step 1: Check for exact custom matches
+    custom = match_custom_response(user_input)
+    if custom:
+        reply = custom
+
+    # Step 2: Check for goal-based suggestions
+    elif detect_goal(user_input):
+        reply = detect_goal(user_input)
+
+    # Step 3: Check for tool-related responses
+    elif get_tool_response(user_input):
+        reply = get_tool_response(user_input)
+
 
     if not reply:
         def is_mutual_fund_related(msg):
