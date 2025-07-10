@@ -194,8 +194,24 @@ if user_input:
 
         def is_inxits_query(msg):
             return any(word in msg.lower() for word in ["inxits", "tools", "explore", "compare", "overlap", "fund analysis"])
+        
+        intent = detect_intent(user_input)
 
         if is_inxits_query(user_input):
+            result = chat.send_message(f"{website_context}\nUser: {user_input}")
+            reply = result.text.strip()
+        
+        elif intent == "GREETING":
+            reply = random.choice([
+            "👋 Hello! How can I help you with mutual funds or Inxits tools today?",
+            "Hi there! Ask me about fund comparison, SIPs, or Inxits features.",
+            "Welcome! Feel free to ask anything about Inxits or mutual funds."
+        ])
+
+        elif intent == "HELP_REQUEST":
+            reply = "Sure! You can ask things like:\n- What is Inxits?\n- How to compare mutual funds?\n- What does the Overlap Tool do?"
+
+        elif intent == "TOOL_QUERY" or is_inxits_query(user_input):
             result = chat.send_message(f"{website_context}\nUser: {user_input}")
             reply = result.text.strip()
 
