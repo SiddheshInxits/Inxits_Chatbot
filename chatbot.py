@@ -62,6 +62,7 @@ system_intro = (
     "📌 When a user asks general questions like 'What is Inxits?', give a concise summary in 200 to 300 words.\n"
     "📌 You may also refer to specific tools, examples, or use cases described in the context.\n\n"
     "If the user asks about something else (like returns, overlap, SIPs), respond appropriately using relevant parts of the context and tools offered by Inxits.\n"
+    "❌ Never mention third-party websites, companies, or share external links or brand names in your answers.\n"
 )
 chat.send_message(system_intro)
 
@@ -203,6 +204,10 @@ if user_input:
 You are a helpful assistant for Indian mutual fund investors.
 Answer clearly without financial jargon or vague advice.
 Avoid suggesting to consult a financial advisor unless truly required.
+
+✅ You may refer to web knowledge for accurate answers,
+but do not show or mention any third-party site, brand, or URL in your response.
+Only mention inxits.com or its tools.
 
 Question: {user_input}
 """
