@@ -74,12 +74,37 @@ def detect_intent(msg):
     return result.text.strip().split()[0].upper()
 
 # === Match Predefined Responses ===
-CUSTOM_RESPONSES = {
-    "what is inxits": "**Inxits** is a commission-free DIY mutual fund platform...\n\n🧰 Tools:\n- Return Comparison\n- Explore\n- Overlap",
-    "more about inxits": "Inxits is designed for investors who want full control and clarity...",
-    "who made inxits": "Inxits.com was created by data scientists, engineers, and finance pros.",
-    "how to compare funds": "Use the Return Comparison Tool to analyze up to 5 funds side-by-side."
-}
+def match_custom_response(msg, website_context, model):
+    msg_lower = msg.lower()
+
+    # Define known intents that should generate a summary
+    summary_questions = [
+        "what is inxits",
+        "more about inxits",
+        "who made inxits",
+        "tell me about inxits",
+        "explain inxits",
+        "how does inxits work",
+    ]
+
+    for key in summary_questions:
+        if key in msg_lower or SequenceMatcher(None, key, msg_lower).ratio() > 0.7:
+            prompt = f"""
+You are a helpful assistant for Inxits.com.
+
+Use the context below to generate a clear, concise, 200-300 word answer to the user's question.
+Avoid fluff or promotional tone. Focus on features, tools, and benefits for Indian mutual fund investors.
+
+Context:
+{website_context}
+
+Question: {msg}
+"""
+            result = model.generate_content(prompt)
+            return result.text.strip()
+
+    return None
+
 
 def match_custom_response(msg):
     msg_lower = msg.lower()
