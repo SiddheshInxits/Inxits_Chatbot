@@ -143,8 +143,11 @@ def detect_goal(msg):
     return next((response for key, response in GOAL_KEYWORDS.items() if key in msg.lower()), None)
 
 def detect_intent(message):
-    response = model.generate_content(f"Classify: '{message}'\nGREETING, HELP_REQUEST, TOOL_QUERY, OTHER?")
-    return response.text.strip().upper()
+    response = model.generate_content(
+        f"Classify this user message into one of these categories: GREETING, HELP_REQUEST, TOOL_QUERY, OTHER.\n\nMessage: '{message}'\n\nJust return the label."
+    )
+    intent = response.text.strip().upper().replace(".", "").replace(":", "").split()[0]
+    return intent
 
 def is_meaningful_input(msg):
     response = model.generate_content(f"Respond YES/NO. Is this meaningful?\n'{msg}'")
@@ -229,6 +232,12 @@ if user_input:
         elif intent == "TOOL_QUERY" or is_inxits_query(user_input):
             result = chat.send_message(f"{website_context}\nUser: {user_input}")
             reply = result.text.strip()
+        if not reply and any(greet in lower_input for greet in ["hello", "hi", "hey", "good morning", "good evening"]):
+            reply = random.choice([
+                "👋 Hello! How can I help you with mutual funds or Inxits tools today?",
+                "Hi there! Ask me about fund comparison, SIPs, or Inxits features.",
+                "Welcome! Feel free to ask anything about Inxits or mutual funds."
+            ])
 
         elif is_mutual_fund_related(user_input):
             prompt = f"""
