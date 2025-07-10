@@ -10,7 +10,7 @@ from sqlalchemy import create_engine, text
 
 # === Gemini API Config ===
 genai.configure(api_key=st.secrets['GEMINI_API_KEY'])
-model = genai.GenerativeModel("Gemma 3")
+model = genai.GenerativeModel("Gemini 2.0 Flash-Lite")
 chat = model.start_chat(history=[])
 
 # === SQL Server Connection using SQLAlchemy + pyodbc ===
