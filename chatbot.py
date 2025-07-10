@@ -106,13 +106,6 @@ Question: {msg}
     return None
 
 
-def match_custom_response(msg):
-    msg_lower = msg.lower()
-    for key in CUSTOM_RESPONSES:
-        if key in msg_lower or SequenceMatcher(None, key, msg_lower).ratio() > 0.7:
-            return CUSTOM_RESPONSES[key]
-    return None
-
 # === Goal Detection ===
 GOAL_KEYWORDS = {
     "retirement": "For retirement, explore long-term equity funds: [Explore Funds](https://portal.inxits.com/Explore/)",
@@ -169,7 +162,7 @@ if user_input:
     log_to_db("User", user_input)
 
     response = (
-        match_custom_response(user_input)
+        match_custom_response(user_input, website_context, model)
         or detect_goal(user_input)
         or get_tool_response(user_input)
     )
