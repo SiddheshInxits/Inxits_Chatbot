@@ -232,7 +232,7 @@ if user_input:
         elif intent == "TOOL_QUERY" or is_inxits_query(user_input):
             result = chat.send_message(f"{website_context}\nUser: {user_input}")
             reply = result.text.strip()
-        if not reply and any(greet in lower_input for greet in ["hello", "hi", "hey", "good morning", "good evening"]):
+        elif not reply and any(greet in lower_input for greet in ["hello", "hi", "hey", "good morning", "good evening"]):
             reply = random.choice([
                 "👋 Hello! How can I help you with mutual funds or Inxits tools today?",
                 "Hi there! Ask me about fund comparison, SIPs, or Inxits features.",
